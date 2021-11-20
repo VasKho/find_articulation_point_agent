@@ -55,6 +55,13 @@ void find_articulation_points(const std::unique_ptr<ScMemoryContext>& context, S
     }
 
     // After finding articulation points we need to erase all unessessary elements
+
+    vertexes = context->Iterator3(
+            nodes,
+            ScType::EdgeAccessConstPosPerm,
+            ScType::Unknown
+            );
+
     while (vertexes->Next())
     {
         ScIterator5Ptr tin_elements_template = context->Iterator5(
@@ -68,7 +75,6 @@ void find_articulation_points(const std::unique_ptr<ScMemoryContext>& context, S
         {
             context->EraseElement(tin_elements_template->Get(3));
             context->EraseElement(tin_elements_template->Get(1));
-            context->EraseElement(tin_elements_template->Get(2));
         }
 
         ScIterator5Ptr tup_elements_template = context->Iterator5(
@@ -82,9 +88,24 @@ void find_articulation_points(const std::unique_ptr<ScMemoryContext>& context, S
         {
             context->EraseElement(tup_elements_template->Get(3));
             context->EraseElement(tup_elements_template->Get(1));
-            context->EraseElement(tup_elements_template->Get(2));
         }
     }
+    ScIterator3Ptr visited_vertexes_iter = context->Iterator3(
+            context->HelperResolveSystemIdtf("_visited_vertexes"),
+            ScType::EdgeAccessVarPosPerm,
+            ScType::NodeConst
+            );
+    while(visited_vertexes_iter->Next()) context->EraseElement(visited_vertexes_iter->Get(1));
+    context->EraseElement(nrel_tin);
+    context->EraseElement(nrel_tup);
+    context->EraseElement(visited_vertexes);
+    ScIterator3Ptr timer_iter = context->Iterator3(
+            context->HelperResolveSystemIdtf("_concept_timer"),
+            ScType::Unknown,
+            ScType::NodeVar
+            );
+    while(timer_iter->Next()) context->EraseElement(timer_iter->Get(2));
+    context->EraseElement(timer_class);
 }
 
 
@@ -190,8 +211,7 @@ void set_tup(const std::unique_ptr<ScMemoryContext>& context, ScAddr node, int t
         ScIterator5Ptr edges_search = context->Iterator5(
                 node,
                 ScType::EdgeDCommonVar,
-                /* context->HelperResolveSystemIdtf(std::to_string(tup)), */
-                ScType::NodeVar,
+                context->HelperResolveSystemIdtf(std::to_string(tup)),
                 ScType::EdgeAccessVarPosPerm,
                 context->HelperResolveSystemIdtf("_tup")
                 );
