@@ -42,10 +42,48 @@ void find_articulation_points(const std::unique_ptr<ScMemoryContext>& context, S
 
     // Now 'vertexes' is ScNode with all vertexes of specified graph
     
-    if(vertexes->Next())
+    while (vertexes->Next())
     {
         ScAddr current_vertex = vertexes->Get(2);
-        dfs(context, current_vertex, current_vertex);
+        // We don't need to check already checked vertexes more than one time
+        ScIterator3Ptr check_if_used = context->Iterator3(
+                context->HelperResolveSystemIdtf("_visited_vertexes"),
+                ScType::EdgeAccessVarPosPerm,
+                current_vertex
+                );
+        if(!check_if_used->Next()) dfs(context, current_vertex, current_vertex);
+    }
+
+    // After finding articulation points we need to erase all unessessary elements
+    while (vertexes->Next())
+    {
+        ScIterator5Ptr tin_elements_template = context->Iterator5(
+                vertexes->Get(0),
+                ScType::EdgeDCommonVar,
+                ScType::NodeVar,
+                ScType::EdgeAccessVarPosPerm,
+                context->HelperResolveSystemIdtf("_tin")
+                ); 
+        while (tin_elements_template->Next())
+        {
+            context->EraseElement(tin_elements_template->Get(3));
+            context->EraseElement(tin_elements_template->Get(1));
+            context->EraseElement(tin_elements_template->Get(2));
+        }
+
+        ScIterator5Ptr tup_elements_template = context->Iterator5(
+                vertexes->Get(0),
+                ScType::EdgeDCommonVar,
+                ScType::NodeVar,
+                ScType::EdgeAccessVarPosPerm,
+                context->HelperResolveSystemIdtf("_tup")
+                ); 
+        while (tin_elements_template->Next())
+        {
+            context->EraseElement(tup_elements_template->Get(3));
+            context->EraseElement(tup_elements_template->Get(1));
+            context->EraseElement(tup_elements_template->Get(2));
+        }
     }
 }
 
@@ -153,8 +191,8 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
     // Mark current_vertex as visited
     context->CreateEdge(ScType::EdgeAccessVarPosPerm, context->HelperResolveSystemIdtf("_visited_vertexes"), current_vertex);
 
+    // Set time of in and out for current vertex
     set_tin(context, current_vertex, time);
-
     set_tup(context, current_vertex, time++);
 
     ScIterator5Ptr tin_finder = context->Iterator5(
@@ -165,6 +203,7 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
             context->HelperResolveSystemIdtf("_tin")
             );
 
+    // Address of time in vertex
     ScAddr tin(0);
     if (tin_finder->Next()) tin = tin_finder->Get(2);
 
@@ -176,6 +215,7 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
             context->HelperResolveSystemIdtf("_tup")
             );
 
+    // Address of time up vertex
     ScAddr tup(0);
     if (tup_finder->Next()) tup = tup_finder->Get(2);
 
@@ -187,7 +227,10 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
     {
         // to_vertex is next vertex to start dfs from
         ScAddr to_vertex = to_vertex_iter->Get(2);
+
+        // If we've found back edge just skip it
         if (to_vertex == parent_vertex) continue;
+        // If edge is not back, but have been checked already just reset time up value
         ScIterator3Ptr if_checked = context->Iterator3(context->HelperResolveSystemIdtf("_visited_vertexes"), ScType::EdgeAccessVarPosPerm, to_vertex);
         if (if_checked->Next())
         {
@@ -200,12 +243,15 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
                     );
             ScAddr tin_to(ScType::Unknown);
             if (tin_to_vertex->Next()) tin_to = tin_to_vertex->Get(2);
-            set_tup(context, tup, min(context, tin_to, tup));
+            set_tup(context, current_vertex, min(context, tin_to, tup));
         }
+        // Default situation
         else
         {
+            // We need to start dfs from next vertex
             dfs(context, to_vertex, current_vertex, time);
 
+            // After that we reset time up value
             ScIterator5Ptr tup_to_vertex = context->Iterator5(
                     to_vertex,
                     ScType::EdgeDCommonVar,
@@ -215,12 +261,15 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
                     );
             ScAddr tup_to(ScType::Unknown);
             if (tup_to_vertex->Next()) tup_to = tup_to_vertex->Get(2);
-            set_tup(context, tup, min(context, tup_to, tup));
+            set_tup(context, current_vertex, min(context, tup_to, tup));
 
 
             int tup_to_value = std::stoi(context->HelperGetSystemIdtf(tup_to));
             int tin_value = std::stoi(context->HelperGetSystemIdtf(tin));
 
+            // Now we compare tup of to_vertex and tin of current_vertex
+            // If tup(to_vertex) >= tin(current_vertex) and current_vertex is not root
+            // then current vertex is articulation point
             if ((tup_to_value >= tin_value) && (current_vertex != parent_vertex))
             {
                 ScIterator3Ptr check_duble = context->Iterator3(
@@ -235,6 +284,7 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
         }
     }
 
+    // If current_vertex is root and has more than one chil then current_vertex is articulation point
     if ((current_vertex == parent_vertex) && children > 1) 
     {
         ScIterator3Ptr check_duble = context->Iterator3(
