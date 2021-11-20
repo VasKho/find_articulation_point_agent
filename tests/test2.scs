@@ -1,0 +1,29 @@
+unoriented_graph -> test2;;
+test2 -> rrel_arcs: ..arcs;
+       -> rrel_nodes: ..nodes;;
+
+
+..nodes -> test2_V1;
+        -> test2_V2;
+        -> test2_V3;
+        -> test2_V4;
+        -> test2_V5;
+        -> test2_V6;
+        -> test2_V7;;
+        
+..arcs -> (test2_V1 <=> test2_V2);
+       -> (test2_V2 <=> test2_V1);
+       -> (test2_V1 <=> test2_V3);
+       -> (test2_V3 <=> test2_V1);
+       -> (test2_V2 <=> test2_V3);
+       -> (test2_V3 <=> test2_V2);
+       -> (test2_V3 <=> test2_V4);
+       -> (test2_V4 <=> test2_V3);
+       -> (test2_V3 <=> test2_V5);
+       -> (test2_V5 <=> test2_V3);
+       -> (test2_V3 <=> test2_V6);
+       -> (test2_V6 <=> test2_V3);
+       -> (test2_V5 <=> test2_V7);
+       -> (test2_V7 <=> test2_V5);
+       -> (test2_V6 <=> test2_V7);
+       -> (test2_V7 <=> test2_V6);;

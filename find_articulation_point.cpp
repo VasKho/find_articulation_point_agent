@@ -96,6 +96,40 @@ int min(const std::unique_ptr<ScMemoryContext>& context, ScAddr a, ScAddr b)
 }
 
 
+ScAddr get_tin(const std::unique_ptr<ScMemoryContext>& context, ScAddr node)
+{
+    ScIterator5Ptr tin_finder = context->Iterator5(
+            node,
+            ScType::EdgeDCommonVar,
+            ScType::NodeVar,
+            ScType::EdgeAccessVarPosPerm,
+            context->HelperResolveSystemIdtf("_tin")
+            );
+
+    // Address of time in vertex
+    ScAddr tin(0);
+    if (tin_finder->Next()) tin = tin_finder->Get(2);
+    return tin;
+}
+
+
+ScAddr get_tup(const std::unique_ptr<ScMemoryContext>& context, ScAddr node)
+{
+    ScIterator5Ptr tup_finder = context->Iterator5(
+            node,
+            ScType::EdgeDCommonVar,
+            ScType::NodeVar,
+            ScType::EdgeAccessVarPosPerm,
+            context->HelperResolveSystemIdtf("_tup")
+            );
+
+    // Address of time up vertex
+    ScAddr tup(0);
+    if (tup_finder->Next()) tup = tup_finder->Get(2);
+    return tup;
+}
+
+
 void set_tin(const std::unique_ptr<ScMemoryContext>& context, ScAddr node, int tin)
 {
     // Iterator to get '_concept_timer _-> tin;;'
@@ -156,7 +190,8 @@ void set_tup(const std::unique_ptr<ScMemoryContext>& context, ScAddr node, int t
         ScIterator5Ptr edges_search = context->Iterator5(
                 node,
                 ScType::EdgeDCommonVar,
-                context->HelperResolveSystemIdtf(std::to_string(tup)),
+                /* context->HelperResolveSystemIdtf(std::to_string(tup)), */
+                ScType::NodeVar,
                 ScType::EdgeAccessVarPosPerm,
                 context->HelperResolveSystemIdtf("_tup")
                 );
@@ -195,30 +230,6 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
     set_tin(context, current_vertex, time);
     set_tup(context, current_vertex, time++);
 
-    ScIterator5Ptr tin_finder = context->Iterator5(
-            current_vertex,
-            ScType::EdgeDCommonVar,
-            ScType::NodeVar,
-            ScType::EdgeAccessVarPosPerm,
-            context->HelperResolveSystemIdtf("_tin")
-            );
-
-    // Address of time in vertex
-    ScAddr tin(0);
-    if (tin_finder->Next()) tin = tin_finder->Get(2);
-
-    ScIterator5Ptr tup_finder = context->Iterator5(
-            current_vertex,
-            ScType::EdgeDCommonVar,
-            ScType::NodeVar,
-            ScType::EdgeAccessVarPosPerm,
-            context->HelperResolveSystemIdtf("_tup")
-            );
-
-    // Address of time up vertex
-    ScAddr tup(0);
-    if (tup_finder->Next()) tup = tup_finder->Get(2);
-
     int children = 0;
 
     // Iterator among children vertexes of current vertex
@@ -233,39 +244,19 @@ void dfs(const std::unique_ptr<ScMemoryContext>& context, ScAddr current_vertex,
         // If edge is not back, but have been checked already just reset time up value
         ScIterator3Ptr if_checked = context->Iterator3(context->HelperResolveSystemIdtf("_visited_vertexes"), ScType::EdgeAccessVarPosPerm, to_vertex);
         if (if_checked->Next())
-        {
-            ScIterator5Ptr tin_to_vertex = context->Iterator5(
-                    to_vertex,
-                    ScType::EdgeDCommonVar,
-                    ScType::NodeVar,
-                    ScType::EdgeAccessVarPosPerm,
-                    context->HelperResolveSystemIdtf("_tin")
-                    );
-            ScAddr tin_to(ScType::Unknown);
-            if (tin_to_vertex->Next()) tin_to = tin_to_vertex->Get(2);
-            set_tup(context, current_vertex, min(context, tin_to, tup));
-        }
+            set_tup(context, current_vertex, min(context, get_tin(context, to_vertex), get_tup(context, current_vertex)));
+
         // Default situation
         else
         {
             // We need to start dfs from next vertex
             dfs(context, to_vertex, current_vertex, time);
 
-            // After that we reset time up value
-            ScIterator5Ptr tup_to_vertex = context->Iterator5(
-                    to_vertex,
-                    ScType::EdgeDCommonVar,
-                    ScType::NodeVar,
-                    ScType::EdgeAccessVarPosPerm,
-                    context->HelperResolveSystemIdtf("_tup")
-                    );
-            ScAddr tup_to(ScType::Unknown);
-            if (tup_to_vertex->Next()) tup_to = tup_to_vertex->Get(2);
-            set_tup(context, current_vertex, min(context, tup_to, tup));
+            set_tup(context, current_vertex, min(context, get_tup(context, to_vertex), get_tup(context, current_vertex)));
 
 
-            int tup_to_value = std::stoi(context->HelperGetSystemIdtf(tup_to));
-            int tin_value = std::stoi(context->HelperGetSystemIdtf(tin));
+            int tup_to_value = std::stoi(context->HelperGetSystemIdtf(get_tup(context, to_vertex)));
+            int tin_value = std::stoi(context->HelperGetSystemIdtf(get_tin(context, current_vertex)));
 
             // Now we compare tup of to_vertex and tin of current_vertex
             // If tup(to_vertex) >= tin(current_vertex) and current_vertex is not root

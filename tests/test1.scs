@@ -1,0 +1,25 @@
+unoriented_graph <- sc_node_class;;
+
+unoriented_graph -> test1;;
+test1 -> rrel_arcs: ..arcs;
+       -> rrel_nodes: ..nodes;;
+
+..nodes -> test1_V1;
+        -> test1_V2;
+        -> test1_V3;
+        -> test1_V4;
+        -> test1_V5;
+        -> test1_V6;;
+
+..arcs -> (test1_V1 <=> test1_V2);
+       -> (test1_V2 <=> test1_V1);
+       -> (test1_V2 <=> test1_V3);
+       -> (test1_V3 <=> test1_V2);
+       -> (test1_V3 <=> test1_V4);
+       -> (test1_V4 <=> test1_V3);
+       -> (test1_V2 <=> test1_V4);
+       -> (test1_V4 <=> test1_V2);
+       -> (test1_V2 <=> test1_V5);
+       -> (test1_V5 <=> test1_V2);
+       -> (test1_V5 <=> test1_V6);
+       -> (test1_V6 <=> test1_V5);;
