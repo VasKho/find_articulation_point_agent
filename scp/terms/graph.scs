@@ -1,0 +1,12 @@
+graph <- sc_node_class;;
+
+graph -> ..struct (* <- sc_node_struct;; *);;
+
+    ..struct -> rrel_vertexes: ..1;
+                               ..2;
+                               ..3;
+                               ..4;;
+
+    ..struct -> rrel_arcs: (..1 => ..2);;
+
+    ..struct -> rrel_edges: (..2 <=> ..3);;

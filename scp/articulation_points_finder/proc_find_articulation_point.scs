@@ -1,0 +1,144 @@
+scp_program -> proc_find_articulation_point (*
+    -> rrel_params: ... (* -> rrel_1: rrel_in: _graph;; *);;
+    -> rrel_operators: ... (*
+        -> rrel_init: ..proc_create_timer (*
+            <- genEl;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_const: rrel_link: rrel_scp_var: _timer;;
+
+            => nrel_goto: ..proc_set_time;;
+        *);;
+
+        -> ..proc_set_time (*
+            <- contAssign;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _timer;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: [0];;
+
+            => nrel_goto: ..proc_create_tin;;
+        *);;
+
+        -> ..proc_create_tin (*
+            <- genEl;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _tin;;
+
+            => nrel_goto: ..proc_create_tup;;
+        *);;
+
+        -> ..proc_create_tup (*
+            <- genEl;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _tup;;
+
+            => nrel_goto: ..proc_create_visited_vertexes;;
+        *);;
+
+        -> ..proc_create_visited_vertexes (*
+            <- genEl;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _visited_vertexes;;
+
+            => nrel_goto: ..proc_get_nodes_set;;
+        *);;
+
+        -> ..proc_get_nodes_set (*
+            <- searchElStr5;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _graph;;
+            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc1;;
+            -> rrel_3: rrel_assign: rrel_node: rrel_scp_var: ..nodes_set;;
+            -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc2;;
+            -> rrel_5: rrel_fixed: rrel_node: rrel_scp_const: rrel_nodes;;
+
+            => nrel_then: ..proc_get_vertex;;
+            => nrel_else: ..proc_print_unknown_construction;;
+        *);;
+
+        -> ..proc_get_vertex (*
+            <- searchElStr3;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: ..nodes_set;;
+            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _access_arc;;
+            -> rrel_3: rrel_assign: rrel_node: rrel_scp_var: _begin_vertex;;
+
+            => nrel_then: ..proc_start_dfs;;
+            => nrel_else: ..proc_print_unknown_construction;;
+        *);;
+
+        -> ..proc_start_dfs (*
+            <- call;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: proc_articulation_point_dfs;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: ... (*
+                -> rrel_1: rrel_fixed: rrel_scp_var: _begin_vertex;;
+                -> rrel_2: rrel_fixed: rrel_scp_var: _begin_vertex;;
+            *);;
+            -> rrel_3: rrel_assign: rrel_scp_var: _descr;;
+
+            => nrel_goto: ..proc_wait_dfs;;
+        *);;
+
+        -> ..proc_wait_dfs (*
+            <- waitReturn;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _descr;;
+
+            => nrel_goto: ..proc_delete_timer;;
+        *);;
+
+        -> ..proc_print_unknown_construction (*
+            <- printNl;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: [Unknown construction. Check input graph, please.];;
+
+            => nrel_goto: ..proc_delete_timer;;
+        *);;
+
+        -> ..proc_delete_timer (*
+            <- eraseEl;;
+            -> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: _timer;;
+
+            => nrel_goto: ..proc_delete_tin;;
+        *);;
+
+        -> ..proc_delete_tin (*
+            <- eraseSetStr5;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_const: rrel_scp_var: _vertex;;
+            -> rrel_2: rrel_assign: rrel_erase: rrel_common: rrel_scp_var: _some_arc1;;
+            -> rrel_3: rrel_assign: rrel_erase: rrel_link: rrel_scp_var: _value;;
+            -> rrel_4: rrel_assign: rrel_erase: rrel_pos_const_perm: rrel_scp_var: _some_arc2;;
+            -> rrel_5: rrel_fixed: rrel_node: rrel_scp_const: _tin;;
+
+            => nrel_then: ..proc_delete_tin_rel;;
+            => nrel_else: ..proc_delete_tin_rel;;
+        *);;
+        
+        -> ..proc_delete_tin_rel (*
+            <- eraseEl;;
+            -> rrel_1: rrel_fixed: rrel_erase: rrel_node: rrel_scp_var: _tin;;
+
+            => nrel_goto: ..proc_delete_tup;;
+        *);;
+
+        -> ..proc_delete_tup (*
+            <- eraseSetStr5;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_const: rrel_scp_var: _vertex;;
+            -> rrel_2: rrel_assign: rrel_erase: rrel_common: rrel_scp_var: _some_arc3;;
+            -> rrel_3: rrel_assign: rrel_erase: rrel_link: rrel_scp_var: _value;;
+            -> rrel_4: rrel_assign: rrel_erase: rrel_pos_const_perm: rrel_scp_var: _some_arc4;;
+            -> rrel_5: rrel_fixed: rrel_node: rrel_scp_const: _tup;;
+
+            => nrel_then: ..proc_delete_tup_rel;;
+            => nrel_else: ..proc_delete_tup_rel;;           
+        *);;
+
+        -> ..proc_delete_tup_rel (*
+            <- eraseEl;;
+            -> rrel_1: rrel_fixed: rrel_erase: rrel_node: rrel_scp_var: _tup;;
+
+            => nrel_goto: ..proc_delete_visited_vertexes;;
+        *);;
+
+        -> ..proc_delete_visited_vertexes (*
+            <- eraseEl;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _visited_vertexes;;
+            
+            => nrel_goto: ..proc_find_articulation_point_return;;
+        *);;
+
+        -> proc_find_articulation_point_return (*
+            <- return;;
+        *);;
+    *);;
+*);;

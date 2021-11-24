@@ -1,0 +1,11 @@
+unoriented_graph <- sc_node_class;;
+
+unoriented_graph -> ..struct (* <- sc_node_struct;; *);;
+
+    ..struct -> rrel_vertexes: ..1;
+                               ..2;
+                               ..3;
+                               ..4;;
+
+    ..struct -> rrel_edges: (..1 <=> ..2);
+                           (..2 <=> ..3);;

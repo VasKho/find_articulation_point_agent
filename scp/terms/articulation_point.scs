@@ -1,0 +1,16 @@
+connected_graph <- sc_node_class;;
+
+connected_graph -> ..struct (* <- sc_node_struct;; *);;
+    ..struct -> rrel_edges: (..1 <=> ..2);
+                           (..2 <=> ..3);
+                           (..3 <=> ..4);;
+
+    ..struct -> rrel_vertexes: ..1;
+                               ..2;
+                               ..3;
+                               ..4;;
+
+articulation_point <- sc_node_class;;
+
+articulation_point -> ..2;
+                      ..3;;
