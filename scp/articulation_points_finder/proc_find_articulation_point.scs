@@ -85,14 +85,8 @@ scp_program -> proc_find_articulation_point (*
             <- eraseEl;;
             -> rrel_1: rrel_fixed: rrel_erase: rrel_scp_var: _timer;;
 
-            => nrel_goto: ..print_status;;
+            => nrel_goto: ..proc_delete_in_values;;
         *);;
-
--> ..print_status (*
-    <- printNl;;
-    -> rrel_1: rrel_fixed: rrel_scp_const: [Timer deleted];;
-    => nrel_goto: ..proc_delete_in_values;;
-*);;
 
         -> ..proc_delete_in_values (*
             <- eraseSetStr5;;
@@ -134,7 +128,6 @@ scp_program -> proc_find_articulation_point (*
             <- eraseEl;;
             -> rrel_1: rrel_fixed: rrel_erase: rrel_node: rrel_scp_var: _visited_vertexes;;
             
-            /* => nrel_goto: ..proc_find_articulation_point_return;; */
             => nrel_goto: ..print_art_points;;
         *);;
 
@@ -149,6 +142,3 @@ scp_program -> proc_find_articulation_point (*
         *);;
     *);;
 *);;
-
-
-// Current problem is in DFS. It's possible that fucking random search find something that will left one vertex without dfs and some articulation points fucked up.

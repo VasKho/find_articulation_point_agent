@@ -105,7 +105,7 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_create_temp_set;;
         *);;
 
-// Создание узла _temp_set
+        // Create _temp_set (to store all adjacent vertexes)
         -> ..proc_create_temp_set (*
             <- genEl;;
             -> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _temp_set;;
@@ -113,7 +113,7 @@ scp_program -> proc_articulation_point_dfs (*
         => nrel_goto: ..proc_find_adjacent;; 
         *);;
 
-// Ищем смежные вершины и заносим все смежные вершины во временное множество
+        // Add all adjacent vertexers to _temp_set
         -> ..proc_find_adjacent (*
             <- searchSetStr5;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
@@ -123,23 +123,10 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_5: rrel_fixed: rrel_scp_var : _graph;;
             -> rrel_set_3: rrel_fixed: rrel_scp_var: _temp_set;;
 
-            => nrel_goto : ..proc_copy_surrounding;; 
-        *);;
-
-// По определению О. Оре [стр. 38] делаем соотнесенный неориентированный
-	    -> ..proc_copy_surrounding (*
-            <- searchSetStr5;;
-            -> rrel_1: rrel_assign: rrel_scp_var: _el3;;
-            -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _arc2;;
-            -> rrel_3: rrel_fixed: rrel_scp_var: _current_vertex;;
-            -> rrel_4: rrel_assign: rrel_scp_var: _arc4;;
-            -> rrel_5: rrel_fixed: rrel_scp_var: _graph;;
-            -> rrel_set_1: rrel_fixed: rrel_scp_var: _temp_set;;
-
             => nrel_goto: ..proc_get_to_vertex;;
         *);;
 
-// Ищем смежную вершину
+        // Finds one adjacent vertex
         -> ..proc_get_to_vertex (*
             <- searchElStr3;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _temp_set;;
@@ -150,6 +137,7 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_else: ..proc_check_root;;
         *);;
 
+        // Delete _to_vertex from temp set
         -> ..proc_delete_from_temp_set (*
             <- eraseEl;;
             -> rrel_1: rrel_fixed: rrel_pos_const_perm: rrel_erase: rrel_scp_var: _arc;;
@@ -157,6 +145,7 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_check_parent;;
         *);;
 
+        // If _to_vertex is back edge then get next _to_vertex
         -> ..proc_check_parent (*
             <- ifCoin;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _to_vertex;;
@@ -166,6 +155,8 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_else: ..proc_find_in_set_of_checked;;
         *);;
 
+        // If _to_vertex has been already checked then compare tin[to] and tup[cur]
+        // If no then start new dfs from it
         -> ..proc_find_in_set_of_checked (*
             <- searchElStr3;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _visited_vertexes;;
@@ -176,6 +167,7 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_else: ..proc_start_new_dfs;;
         *);;
 
+        //------- BEGIN of comparison -------
         -> ..proc_get_to_vertex_tin (*
             <- searchElStr5;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex;;
@@ -207,6 +199,7 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_else: ..proc_change_cur_vrt_tup;;
         *);;
 
+        // tup[cur] = min(tup[cur], tin[to])
         -> ..proc_change_cur_vrt_tup (*
             <- contAssign;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex_tup;;
@@ -214,6 +207,7 @@ scp_program -> proc_articulation_point_dfs (*
 
             => nrel_goto: ..proc_get_to_vertex;;
         *);;
+        //------- END of comparison -------
 
         -> ..proc_start_new_dfs (*
             <- call;;
@@ -240,6 +234,8 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_get_to_vertex_tup;;
         *);;
 
+        // After dfs we compare tup[cur] and tup[to]
+        //------- BEGIN of comparison -------
         -> ..proc_get_to_vertex_tup (*
             <- searchElStr5;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex;;
@@ -271,6 +267,7 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_else: ..proc_change_cur_vrtx_tup;;
         *);;
 
+        // tup[cur] = min(tup[cur], tup[to])
         -> ..proc_change_cur_vrtx_tup (*
             <- contAssign;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex_tup;;
@@ -278,16 +275,11 @@ scp_program -> proc_articulation_point_dfs (*
 
             => nrel_goto: ..proc_get_current_tin;;
         *);;
+        //------- END of comparison -------
 
-        -> ..proc_check_if_root (*
-            <- ifCoin;;
-            -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
-            -> rrel_2: rrel_fixed: rrel_scp_var: _parent_vertex;;
 
-            => nrel_then: ..proc_get_to_vertex;;
-            => nrel_else: ..proc_get_current_tin;;
-        *);;
-
+        // After that we compare tup[to] and tin[cur]
+        // The result is decision whether current_vertex articulation_point or not
         -> ..proc_get_current_tin (*
             <- searchElStr5;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
@@ -299,6 +291,8 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_then: ..proc_check_if_greater;;
         *);;
 
+        // If tup[to] >= tin[cur] and current_vertex is not a root of dfs
+        // then current_vertex is articulation_point
         -> ..proc_check_if_greater (*
             <- ifGr;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _to_vertex_tup;;
@@ -323,9 +317,21 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_2: rrel_fixed: rrel_scp_var: _parent_vertex;;
 
             => nrel_then: ..proc_increment_children;;
+            => nrel_else: ..proc_check_inclusion1;;
+        *);;
+        
+        // We check whether _current_vertex is in articulation_point class
+        -> ..proc_check_inclusion1 (*
+            <- searchElStr3;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: articulation_point;;
+            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc;;
+            -> rrel_3: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
+
+            => nrel_then: ..proc_increment_children;;
             => nrel_else: ..proc_add_to_art_points;;
         *);;
 
+        // If no just add it
         -> ..proc_add_to_art_points (*
             <- genElStr3;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: articulation_point;;
@@ -344,6 +350,9 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_get_to_vertex;;
         *);;
 
+        // One more situation is root of dfs
+        // If current_vertex is root and has more than one children
+        // Then it's articulation_point
         -> ..proc_check_root (*
             <- ifCoin;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
@@ -358,8 +367,18 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_scp_var: _children;;
             -> rrel_2: rrel_fixed: rrel_scp_const: [1];;
 
-            => nrel_then: ..proc_add_art_point;;
+            => nrel_then: ..proc_check_inclusion2;;
             => nrel_else: ..proc_delete_temp_set;;
+        *);;
+
+        -> ..proc_check_inclusion2 (*
+            <- searchElStr3;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: articulation_point;;
+            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc;;
+            -> rrel_3: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
+
+            => nrel_then: ..proc_delete_temp_set;;
+            => nrel_else: ..proc_add_art_point;;
         *);;
 
         -> ..proc_add_art_point (*
