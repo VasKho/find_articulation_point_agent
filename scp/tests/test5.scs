@@ -1,0 +1,23 @@
+unoriented_graph -> test5;;
+
+test5 -> rrel_nodes: test5_V1;
+      -> rrel_nodes: test5_V2;
+      -> rrel_nodes: test5_V3;
+      -> rrel_nodes: test5_V4;
+      -> rrel_nodes: test5_V5;
+      -> rrel_nodes: test5_V6;;
+
+test5 -> rrel_arcs: (test5_V1 <=> test5_V2);
+      -> rrel_arcs: (test5_V2 <=> test5_V1);
+      -> rrel_arcs: (test5_V1 <=> test5_V4);
+      -> rrel_arcs: (test5_V4 <=> test5_V1);
+      -> rrel_arcs: (test5_V2 <=> test5_V3);
+      -> rrel_arcs: (test5_V3 <=> test5_V2);
+      -> rrel_arcs: (test5_V2 <=> test5_V4);
+      -> rrel_arcs: (test5_V4 <=> test5_V2);
+      -> rrel_arcs: (test5_V4 <=> test5_V5);
+      -> rrel_arcs: (test5_V5 <=> test5_V4);
+      -> rrel_arcs: (test5_V4 <=> test5_V6);
+      -> rrel_arcs: (test5_V6 <=> test5_V4);
+      -> rrel_arcs: (test5_V5 <=> test5_V6);
+      -> rrel_arcs: (test5_V6 <=> test5_V5);;

@@ -1,0 +1,30 @@
+unoriented_graph -> test3;;
+
+test3 -> rrel_nodes: test3_V1;
+      -> rrel_nodes: test3_V2;
+      -> rrel_nodes: test3_V3;
+      -> rrel_nodes: test3_V4;
+      -> rrel_nodes: test3_V5;
+      -> rrel_nodes: test3_V6;
+      -> rrel_nodes: test3_V7;
+      -> rrel_nodes: test3_V8;
+      -> rrel_nodes: test3_V9;;
+
+test3 -> rrel_arcs: (test3_V1 <=> test3_V2);
+      -> rrel_arcs: (test3_V2 <=> test3_V1);
+      -> rrel_arcs: (test3_V1 <=> test3_V4);
+      -> rrel_arcs: (test3_V4 <=> test3_V1);
+      -> rrel_arcs: (test3_V2 <=> test3_V3);
+      -> rrel_arcs: (test3_V3 <=> test3_V2);
+      -> rrel_arcs: (test3_V2 <=> test3_V6);
+      -> rrel_arcs: (test3_V6 <=> test3_V2);
+      -> rrel_arcs: (test3_V2 <=> test3_V7);
+      -> rrel_arcs: (test3_V7 <=> test3_V2);
+      -> rrel_arcs: (test3_V3 <=> test3_V8);
+      -> rrel_arcs: (test3_V8 <=> test3_V3);
+      -> rrel_arcs: (test3_V4 <=> test3_V5);
+      -> rrel_arcs: (test3_V5 <=> test3_V4);
+      -> rrel_arcs: (test3_V6 <=> test3_V7);
+      -> rrel_arcs: (test3_V7 <=> test3_V6);
+      -> rrel_arcs: (test3_V8 <=> test3_V9);
+      -> rrel_arcs: (test3_V9 <=> test3_V8);;

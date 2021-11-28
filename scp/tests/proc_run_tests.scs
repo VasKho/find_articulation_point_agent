@@ -1,0 +1,83 @@
+scp_program -> proc_run_tests (*
+    -> rrel_params: ...;;
+    -> rrel_operators: ... (*
+        -> rrel_init: ..proc_run_test1 (*
+            <- call;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: proc_find_articulation_point;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: ... (* -> rrel_1: rrel_fixed: rrel_scp_const: test1;; *);;
+            -> rrel_3: rrel_assign: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_tests_wait_test1;;
+        *);;
+
+        -> ..proc_run_tests_wait_test1 (*
+            <- waitReturn;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_test2;;
+        *);;
+
+
+        -> ..proc_run_test2 (*
+            <- call;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: proc_find_articulation_point;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: ... (* -> rrel_1: rrel_fixed: rrel_scp_const: test2;; *);;
+            -> rrel_3: rrel_assign: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_tests_wait_test2;;
+        *);;
+
+        -> ..proc_run_tests_wait_test2 (*
+            <- waitReturn;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_test3;;
+        *);;
+
+
+        -> ..proc_run_test3 (*
+            <- call;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: proc_find_articulation_point;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: ... (* -> rrel_1: rrel_fixed: rrel_scp_const: test3;; *);;
+            -> rrel_3: rrel_assign: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_tests_wait_test3;;
+        *);;
+
+        -> ..proc_run_tests_wait_test3 (*
+            <- waitReturn;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_test4;;
+        *);;
+
+
+        -> ..proc_run_test4 (*
+            <- call;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: proc_find_articulation_point;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: ... (* -> rrel_1: rrel_fixed: rrel_scp_const: test4;; *);;
+            -> rrel_3: rrel_assign: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_tests_wait_test4;;
+        *);;
+
+        -> ..proc_run_tests_wait_test4 (*
+            <- waitReturn;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_test5;;
+        *);;
+
+
+        -> ..proc_run_test5 (*
+            <- call;;
+            -> rrel_1: rrel_fixed: rrel_scp_const: proc_find_articulation_point;;
+            -> rrel_2: rrel_fixed: rrel_scp_const: ... (* -> rrel_1: rrel_fixed: rrel_scp_const: test5;; *);;
+            -> rrel_3: rrel_assign: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_tests_wait_test5;;
+        *);;
+
+        -> ..proc_run_tests_wait_test5 (*
+            <- waitReturn;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _running_test;;
+            => nrel_goto: ..proc_run_tests_operator_return;;
+        *);;
+
+
+	-> ..proc_run_all_tests_operator_return (*
+	    <- return;;
+	*);;
+    *);;
+*);;

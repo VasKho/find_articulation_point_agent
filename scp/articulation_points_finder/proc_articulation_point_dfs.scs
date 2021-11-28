@@ -2,9 +2,16 @@ scp_program -> proc_articulation_point_dfs (*
     -> rrel_params: ... (*
         -> rrel_1: rrel_in: _current_vertex;;
         -> rrel_2: rrel_in: _parent_vertex;;
+        -> rrel_3: rrel_in: _timer;;
+        -> rrel_4: rrel_in: _visited_vertexes;;
+        -> rrel_5: rrel_in: _graph;;
+        -> rrel_6: rrel_in: _tin;;
+        -> rrel_7: rrel_in: _tup;;
+        -> rrel_8: rrel_in: articulation_point;;
     *);;
 
-    -> rrel_operators: ... (*
+    -> rrel_operators: ... (* 
+        // Increment timer variable
         -> rrel_init: ..proc_increment_timer (*
             <- contAdd;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _timer;;
@@ -14,13 +21,15 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_create_current_tin;;
         *);;
 
+        // Create current_tin variable
         -> ..proc_create_current_tin (*
             <- genEl;;
-            -> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_scp_var: _current_tin;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_const: rrel_scp_var: _current_tin;;
 
             => nrel_goto: ..proc_current_tin_assign;;
         *);;
 
+        // Set current_tin (current_tin = timer)
         -> ..proc_current_tin_assign (*
             <- contAssign;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_tin;;
@@ -29,13 +38,15 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_create_current_tup;;
         *);;
 
+        // Create current_tup
         -> ..proc_create_current_tup (*
             <- genEl;;
-            -> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_scp_var: _current_tup;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_const: rrel_scp_var: _current_tup;;
 
             => nrel_goto: ..proc_current_tup_assign;;
         *);;
 
+        // Set current_tup (current_tup = timer)
         -> ..proc_current_tup_assign (*
             <- contAssign;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_tup;;
@@ -44,35 +55,39 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_set_tin_for_vertex;;
         *);;
 
+        // Connect current_vertex with its current_tin
         -> ..proc_set_tin_for_vertex (*
             <- genElStr5;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_const: rrel_scp_var: _current_vertex;;
             -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _tin_arc;;
-            -> rrel_3: rrel_fixed: rrel_node: rrel_link: rrel_scp_var: _current_tin;;
+            -> rrel_3: rrel_fixed: rrel_link: rrel_const: rrel_scp_var: _current_tin;;
             -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _tin_role_arc;;
-            -> rrel_5: rrel_fixed: rrel_scp_const: _tin;;
+            -> rrel_5: rrel_fixed: rrel_node: rrel_const: rrel_scp_const: _tin;;
 
             => nrel_goto: ..proc_set_tup_for_vertex;;
         *);;
 
+        // Connect current_vertex with its current_tup
         -> ..proc_set_tup_for_vertex (*
             <- genElStr5;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_const: rrel_scp_var: _current_vertex;;
             -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _tup_arc;;
-            -> rrel_3: rrel_fixed: rrel_node: rrel_link: rrel_scp_var: _current_tup;;
+            -> rrel_3: rrel_fixed: rrel_link: rrel_const: rrel_scp_var: _current_tup;;
             -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _tup_role_arc;;
-            -> rrel_5: rrel_fixed: rrel_scp_const: _tup;;
+            -> rrel_5: rrel_fixed: rrel_node: rrel_const: rrel_scp_const: _tup;;
 
             => nrel_goto: ..proc_create_children_number;;
         *);;
 
+        // Create children variable
         -> ..proc_create_children_number (*
             <- genEl;;
-            -> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_scp_var: _children;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_link: rrel_const: rrel_scp_var: _children;;
 
             => nrel_goto: ..proc_assign_children_number;;
         *);;
 
+        // Set children to 0
         -> ..proc_assign_children_number (*
             <- contAssign;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _children;;
@@ -87,32 +102,74 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _visited_access;;
             -> rrel_3: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
 
+            => nrel_goto: ..proc_create_temp_set;;
+        *);;
+
+// Создание узла _temp_set
+        -> ..proc_create_temp_set (*
+            <- genEl;;
+            -> rrel_1: rrel_assign: rrel_node: rrel_scp_var: _temp_set;;
+
+        => nrel_goto: ..proc_find_adjacent;; 
+        *);;
+
+// Ищем смежные вершины и заносим все смежные вершины во временное множество
+        -> ..proc_find_adjacent (*
+            <- searchSetStr5;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
+            -> rrel_2: rrel_assign: rrel_scp_var: _arc2;;
+            -> rrel_3: rrel_assign: rrel_scp_var: _el3;;
+            -> rrel_4: rrel_assign: rrel_scp_var: _arc4;;
+            -> rrel_5: rrel_fixed: rrel_scp_var : _graph;;
+            -> rrel_set_3: rrel_fixed: rrel_scp_var: _temp_set;;
+
+            => nrel_goto : ..proc_copy_surrounding;; 
+        *);;
+
+// По определению О. Оре [стр. 38] делаем соотнесенный неориентированный
+	    -> ..proc_copy_surrounding (*
+            <- searchSetStr5;;
+            -> rrel_1: rrel_assign: rrel_scp_var: _el3;;
+            -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _arc2;;
+            -> rrel_3: rrel_fixed: rrel_scp_var: _current_vertex;;
+            -> rrel_4: rrel_assign: rrel_scp_var: _arc4;;
+            -> rrel_5: rrel_fixed: rrel_scp_var: _graph;;
+            -> rrel_set_1: rrel_fixed: rrel_scp_var: _temp_set;;
+
             => nrel_goto: ..proc_get_to_vertex;;
         *);;
 
+// Ищем смежную вершину
         -> ..proc_get_to_vertex (*
             <- searchElStr3;;
-            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
-            -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _edge;;
-            -> rrel_3: rrel_assign: rrel_node: rrel_scp_var: _to_vertex;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _temp_set;;
+            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _arc;;
+            -> rrel_3: rrel_assign: rrel_scp_var: _to_vertex;;
 
-            => nrel_then: ..proc_check_parent;;
+            => nrel_then: ..proc_delete_from_temp_set;;
             => nrel_else: ..proc_check_root;;
+        *);;
+
+        -> ..proc_delete_from_temp_set (*
+            <- eraseEl;;
+            -> rrel_1: rrel_fixed: rrel_pos_const_perm: rrel_erase: rrel_scp_var: _arc;;
+
+            => nrel_goto: ..proc_check_parent;;
         *);;
 
         -> ..proc_check_parent (*
             <- ifCoin;;
-            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex;;
-            -> rrel_2: rrel_fixed: rrel_node: rrel_scp_var: _parent_vertex;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _to_vertex;;
+            -> rrel_2: rrel_fixed: rrel_scp_var: _parent_vertex;;
 
             => nrel_then: ..proc_get_to_vertex;;
             => nrel_else: ..proc_find_in_set_of_checked;;
         *);;
 
-        -> proc_find_in_set_of_checked (*
+        -> ..proc_find_in_set_of_checked (*
             <- searchElStr3;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _visited_vertexes;;
-            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _visited_vertexes;;
+            -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _visited_vertexes_arc;;
             -> rrel_3: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex;;
 
             => nrel_then: ..proc_get_to_vertex_tin;;
@@ -158,12 +215,18 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_get_to_vertex;;
         *);;
 
-        -> proc_start_new_dfs (*
+        -> ..proc_start_new_dfs (*
             <- call;;
             -> rrel_1: rrel_fixed: rrel_scp_const: proc_articulation_point_dfs;;
             -> rrel_2: rrel_fixed: rrel_scp_const: ... (*
-                -> rrel_1: rrel_fixed: rrel_node: _to_vertex;;
-                -> rrel_2: rrel_fixed: rrel_node: _current_vertex;;
+                -> rrel_1: rrel_fixed: rrel_scp_var: _to_vertex;;
+                -> rrel_2: rrel_fixed: rrel_scp_var: _current_vertex;;
+                -> rrel_3: rrel_fixed: rrel_scp_var: _timer;;
+                -> rrel_4: rrel_fixed: rrel_scp_var: _visited_vertexes;;
+                -> rrel_5: rrel_fixed: rrel_scp_var: _graph;;
+                -> rrel_6: rrel_fixed: rrel_scp_const: _tin;;
+                -> rrel_7: rrel_fixed: rrel_scp_const: _tup;;
+                -> rrel_8: rrel_fixed: rrel_scp_var: articulation_point;;
             *);;
             -> rrel_3: rrel_assign: rrel_scp_var: _descr;;
 
@@ -182,13 +245,13 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex;;
             -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _to_vrt_tup_arc;;
             -> rrel_3: rrel_assign: rrel_node: rrel_link: rrel_scp_var: _to_vertex_tup;;
-            -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _tup_rel_arc;; // may cause some problems because in 138 already exists one
+            -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _tup_rel_arc;;
             -> rrel_5: rrel_fixed: rrel_node: rrel_scp_const: _tup;;
 
-            => nrel_then: ..proc_get_get_cur_vrt_tup;;
+            => nrel_then: ..proc_get_cur_vrt_tup;;
         *);;
 
-        -> proc_get_get_cur_vrt_tup (*
+        -> ..proc_get_cur_vrt_tup (*
             <- searchElStr5;;
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
             -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _cur_vrt_tup_arc;;
@@ -204,7 +267,7 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_scp_var: _to_vertex_tup;;
             -> rrel_2: rrel_fixed: rrel_scp_var: _current_vertex_tup;;
 
-            => nrel_then: ..proc_check_if_root;;
+            => nrel_then: ..proc_get_current_tin;;
             => nrel_else: ..proc_change_cur_vrtx_tup;;
         *);;
 
@@ -213,7 +276,7 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex_tup;;
             -> rrel_2: rrel_fixed: rrel_scp_var: _to_vertex_tup;;
 
-            => nrel_goto: ..proc_check_if_root;;
+            => nrel_goto: ..proc_get_current_tin;;
         *);;
 
         -> ..proc_check_if_root (*
@@ -221,7 +284,7 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
             -> rrel_2: rrel_fixed: rrel_scp_var: _parent_vertex;;
 
-            => nrel_then: ..proc_check_root;;
+            => nrel_then: ..proc_get_to_vertex;;
             => nrel_else: ..proc_get_current_tin;;
         *);;
 
@@ -230,19 +293,10 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
             -> rrel_2: rrel_assign: rrel_common: rrel_scp_var: _cur_vert_tin_arc;;
             -> rrel_3: rrel_assign: rrel_node: rrel_link: rrel_scp_var: _current_vertex_tin;;
-            -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _tin_rel_arc;; // may cause some additional problems
+            -> rrel_4: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _tin_rel_arc;;
             -> rrel_5: rrel_fixed: rrel_node: rrel_scp_const: _tin;;
 
-            => nrel_then: ..proc_check_if_articulation_point_1;;
-        *);;
-
-        -> ..proc_check_if_articulation_point_1 (*
-            <- ifEq;;
-            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex_tup;;
-            -> rrel_2: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex_tin;;
-
-            => nrel_then: ..proc_add_to_art_points;;
-            => nrel_else: ..proc_check_if_greater;;
+            => nrel_then: ..proc_check_if_greater;;
         *);;
 
         -> ..proc_check_if_greater (*
@@ -250,13 +304,31 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_1: rrel_fixed: rrel_scp_var: _to_vertex_tup;;
             -> rrel_2: rrel_fixed: rrel_scp_var: _current_vertex_tin;;
 
-            => nrel_then: ..proc_add_to_art_points;;
+            => nrel_then: ..proc_compare_with_root;;
+            => nrel_else: ..proc_check_if_articulation_point_1;;
+        *);;
+
+        -> ..proc_check_if_articulation_point_1 (*
+            <- ifEq;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: _to_vertex_tup;;
+            -> rrel_2: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex_tin;;
+
+            => nrel_then: ..proc_compare_with_root;;
             => nrel_else: ..proc_increment_children;;
+        *);;
+
+        -> ..proc_compare_with_root (*
+            <- ifCoin;;
+            -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
+            -> rrel_2: rrel_fixed: rrel_scp_var: _parent_vertex;;
+
+            => nrel_then: ..proc_increment_children;;
+            => nrel_else: ..proc_add_to_art_points;;
         *);;
 
         -> ..proc_add_to_art_points (*
             <- genElStr3;;
-            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_const: articulation_point;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: articulation_point;;
             -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _access_arc;;
             -> rrel_3: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
 
@@ -272,13 +344,13 @@ scp_program -> proc_articulation_point_dfs (*
             => nrel_goto: ..proc_get_to_vertex;;
         *);;
 
-        -> proc_check_root (*
+        -> ..proc_check_root (*
             <- ifCoin;;
             -> rrel_1: rrel_fixed: rrel_scp_var: _current_vertex;;
             -> rrel_2: rrel_fixed: rrel_scp_var: _parent_vertex;;
 
             => nrel_then: ..proc_check_children_number;;
-            => nrel_else: ..proc_articulation_point_dfs_return;;
+            => nrel_else: ..proc_delete_temp_set;;
         *);;
 
         -> ..proc_check_children_number (*
@@ -287,16 +359,23 @@ scp_program -> proc_articulation_point_dfs (*
             -> rrel_2: rrel_fixed: rrel_scp_const: [1];;
 
             => nrel_then: ..proc_add_art_point;;
-            => nrel_else: ..proc_articulation_point_dfs_return;;
+            => nrel_else: ..proc_delete_temp_set;;
         *);;
 
         -> ..proc_add_art_point (*
              <- genElStr3;;
-            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_const: articulation_point;;
+            -> rrel_1: rrel_fixed: rrel_node: rrel_scp_var: articulation_point;;
             -> rrel_2: rrel_assign: rrel_pos_const_perm: rrel_scp_var: _access_arc;;
             -> rrel_3: rrel_fixed: rrel_node: rrel_scp_var: _current_vertex;;
 
-            => nrel_goto: ..proc_articulation_point_dfs_return;;           
+            => nrel_goto: ..proc_delete_temp_set;;           
+        *);;
+
+        -> ..proc_delete_temp_set (*
+            <- eraseEl;;
+            -> rrel_1: rrel_erase: rrel_scp_var: _temp_set;;
+
+            => nrel_goto: ..proc_articulation_point_dfs_return;;
         *);;
 
         -> ..proc_articulation_point_dfs_return (*
