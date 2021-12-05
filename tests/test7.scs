@@ -1,0 +1,34 @@
+test7 -> rrel_arcs: ..arcs;
+       -> rrel_nodes: ..nodes;;
+
+..nodes -> test7_V1;
+        -> test7_V2;
+        -> test7_V3;
+        -> test7_V4;
+        -> test7_V5;
+        -> test7_V6;
+        -> test7_V7;
+        -> test7_V8;
+        -> test7_V9;
+        -> test7_V10;;
+
+..arcs -> (test7_V1 <=> test7_V2);
+       -> (test7_V2 <=> test7_V1);
+       -> (test7_V2 <=> test7_V3);
+       -> (test7_V3 <=> test7_V2);
+       -> (test7_V3 <=> test7_V4);
+       -> (test7_V4 <=> test7_V3);
+       -> (test7_V4 <=> test7_V5);
+       -> (test7_V5 <=> test7_V4);
+       -> (test7_V4 <=> test7_V9);
+       -> (test7_V9 <=> test7_V4);
+       -> (test7_V5 <=> test7_V6);
+       -> (test7_V6 <=> test7_V5);
+       -> (test7_V6 <=> test7_V7);
+       -> (test7_V7 <=> test7_V6);
+       -> (test7_V6 <=> test7_V8);
+       -> (test7_V8 <=> test7_V6);
+       -> (test7_V8 <=> test7_V9);
+       -> (test7_V9 <=> test7_V8);
+       -> (test7_V9 <=> test7_V10);
+       -> (test7_V10 <=> test7_V9);;

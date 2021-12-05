@@ -17,7 +17,9 @@ void find_articulation_points(const std::unique_ptr<ScMemoryContext>& context, S
             context->HelperResolveSystemIdtf("rrel_nodes")
             );
     if (nodes_iter->Next()) nodes = nodes_iter->Get(2);
-    else throw("Unknown construction");
+    else throw std::string("Unknown construction");
+
+    if (nodes_iter->Next()) throw std::string("Unknown construction");
 
     // Iterator to get 'nodes -> vertex'
     ScIterator3Ptr vertexes = context->Iterator3(

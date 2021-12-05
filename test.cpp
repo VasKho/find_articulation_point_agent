@@ -20,12 +20,20 @@ int main()
 
     ScAddr graph, rrel_arcs, rrel_nodes;
 
-    for (int i = 1; i <= 5; ++i)
+    for (int i = 1; i <= 8; ++i)
     {
         graph = context->HelperResolveSystemIdtf("test" + std::to_string(i));
         std::cout << context->HelperGetSystemIdtf(graph) << std::endl;
 
-        find_articulation_points(context, graph);
+        try
+        {
+            find_articulation_points(context, graph);
+        }
+        catch (std::string& error_message)
+        {
+            std::cout << error_message << std::endl;
+            continue;
+        }
     }
 
     std::cout << "articulation_point" << std::endl;

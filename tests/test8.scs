@@ -1,0 +1,11 @@
+unoriented_graph -> test8;;
+
+
+test8 -> rrel_nodes: test8_V1;
+                     test8_V2;
+                     test8_V3;;
+
+test8 -> rrel_arcs: (test8_V1 <=> test8_V2);
+                    (test8_V2 <=> test8_V1);
+                    (test8_V2 <=> test8_V3);
+                    (test8_V3 <=> test8_V2);;

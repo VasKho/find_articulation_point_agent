@@ -1,0 +1,10 @@
+test6 -> rrel_arcs: ..arcs;
+       -> rrel_nodes: ..nodes;;
+
+..nodes -> test6_V1;
+        -> test6_V2;
+        -> test6_V3;;
+
+..arcs -> (test6_V1 => test5_V6);
+       -> (test6_V2 <=> test6_V3);
+       -> (test6_V3 <=> test6_V2);;
